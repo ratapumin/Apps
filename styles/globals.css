@@ -1,0 +1,63 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Noto Sans Thai', sans-serif;
+
+}
+
+
+nav {
+    width: auto;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    background: #6c757d;
+
+
+}
+
+
+
+nav a {
+
+    padding: 10px;
+    margin: 10px;
+    text-decoration: none;
+    opacity: 0.5;
+    color: black;
+    font-weight: bold;
+    border-radius: 5px;
+    letter-spacing: 4px;
+    overflow: hidden;
+    transition: 0.5s;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+}
+
+nav .logo {
+    background: none;
+    border-radius: none;
+    padding: 0px 5px;
+
+}
+
+nav a:hover {
+    color: #03e9f4;
+}
+
+.active {
+    border-bottom: 3px solid #03e9f4;
+}
+
+Image:hover {
+    list-style: none;
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #d3d3d3;
+    color: white;
+
+
+}
