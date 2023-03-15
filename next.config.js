@@ -4,8 +4,8 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "www.psu.ac.th",
+        protocol: "http",
+        hostname: "/localhost:1337/",
       },
     ],
   },
