@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import Styles from "@/styles/demo.module.css";
+import Link from "next/link";
+import getStaticPaths from "../demo/[id]";
 
 export default function Home() {
   const [data, setData] = useState([]);
@@ -13,9 +15,11 @@ export default function Home() {
       console.log(err);
     }
   };
+
   useEffect(() => {
     callAPI();
   }, []);
+
   return (
     <>
       <div className={Styles.bg}>
@@ -23,7 +27,7 @@ export default function Home() {
           <h6 className={Styles.h6}>Your Pre-title goes here</h6>
           <h3 className={Styles.h1}>Application demo build under SaaS</h3>
           {data.data?.map((item) => (
-            <div className={Styles.card}>
+            <div className={Styles.card} key={item.id}>
               <div className={Styles.front}>
                 <div key={item.id}>
                   <img
@@ -39,7 +43,7 @@ export default function Home() {
                   <p className={Styles.boxtext}>
                     {item.attributes.Descriptions}
                   </p>
-                  <p className={Styles.button}> eiei</p>
+                  <Link href={`/demo/ ` + item.id}>click</Link>
                 </div>
               </div>
             </div>
