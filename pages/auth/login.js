@@ -19,11 +19,17 @@ export default function LoginPage() {
       });
 
       if (res.status === 200) {
+        const { username, email } = res.data.user;
         const token = res.data.jwt;
         jsCookie.set("jwt", token);
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ username, email, token })
+        );
         window.alert("Login successful!");
-        window.alert(token);
-        router.push("/auth");
+        window.alert("welcome :" + username);
+
+        router.push("/");
       } else {
         setErrorMessage("Authentication failed. Please try again.");
       }
@@ -52,6 +58,7 @@ export default function LoginPage() {
         />
       </label>
       {errorMessage && <p>{errorMessage}</p>}
+
       <button type="submit">Login</button>
     </form>
   );

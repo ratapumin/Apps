@@ -1,16 +1,28 @@
 import { useState, useEffect } from "react";
 import Styles from "@/styles/demo.module.css";
 import Link from "next/link";
-import getStaticPaths from "../demo/[id]";
+import jsCookie from "js-cookie";
+import axios from "axios";
 
 export default function Home() {
   const [data, setData] = useState([]);
+  const [jwt, setJwt] = useState("");
+
+  useEffect(() => {
+    const token = jsCookie.get("jwt");
+    setJwt(token);
+  }, []);
 
   const callAPI = async () => {
     try {
-      const res = await fetch(`http://localhost:1337/api/apps?populate=*`);
-      const data = await res.json();
-      setData(data);
+      const token = jsCookie.get("jwt");
+      const res = await axios.get(`http://localhost:1337/api/apps?populate=*`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setData(res.data.data);
+      setJwt(token);
     } catch (err) {
       console.log(err);
     }
@@ -18,7 +30,7 @@ export default function Home() {
 
   useEffect(() => {
     callAPI();
-  }, []);
+  });
 
   return (
     <>
@@ -26,7 +38,7 @@ export default function Home() {
         <div className={Styles.card_container}>
           <h6 className={Styles.h6}>Your Pre-title goes here</h6>
           <h3 className={Styles.h1}>Application demo build under SaaS</h3>
-          {data.data?.map((item) => (
+          {data.map((item) => (
             <div className={Styles.card} key={item.id}>
               <div className={Styles.front}>
                 <div key={item.id}>
