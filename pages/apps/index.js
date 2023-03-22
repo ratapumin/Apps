@@ -3,8 +3,10 @@ import Styles from "@/styles/demo.module.css";
 import Link from "next/link";
 import jsCookie from "js-cookie";
 import axios from "axios";
+import { useRouter } from "next/router";
 
 export default function Home() {
+  const router = useRouter();
   const [data, setData] = useState([]);
   const [jwt, setJwt] = useState("");
 
@@ -12,6 +14,11 @@ export default function Home() {
     const token = jsCookie.get("jwt");
     setJwt(token);
   }, []);
+
+  const handleLinkClick = (e, id) => {
+    e.preventDefault();
+    router.push(`/demo/${id}`);
+  };
 
   const callAPI = async () => {
     try {
@@ -28,9 +35,16 @@ export default function Home() {
     }
   };
 
+  const handleClick = (itemid) => {
+    router.push({
+      pathname: `../demo/[id].js`,
+      query: { itemid },
+    });
+  };
+
   useEffect(() => {
     callAPI();
-  });
+  }, []);
 
   return (
     <>
@@ -55,7 +69,13 @@ export default function Home() {
                   <p className={Styles.boxtext}>
                     {item.attributes.Descriptions}
                   </p>
-                  <Link href={`/demo/ ` + item.id}>click</Link>
+
+                  <p
+                    className={Styles.button}
+                    onClick={() => handleClick(item.id)}
+                  >
+                    click
+                  </p>
                 </div>
               </div>
             </div>
