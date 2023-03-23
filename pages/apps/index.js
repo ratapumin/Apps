@@ -15,11 +15,6 @@ export default function Home() {
     setJwt(token);
   }, []);
 
-  const handleLinkClick = (e, id) => {
-    e.preventDefault();
-    router.push(`/demo/${id}`);
-  };
-
   const callAPI = async () => {
     try {
       const token = jsCookie.get("jwt");

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Styles from "@/styles/demo.module.css";
+
 import jsCookie from "js-cookie";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -8,21 +8,18 @@ export default function CallID() {
   const [data, setData] = useState({});
   const [jwt, setJwt] = useState("");
   const router = useRouter();
-  const { itemid } = router.query;
-  const strapiBaseUrl = `http://localhost:1337/api/${itemid}`;
-  const collectionName = `apps`;
-  const [isEditing, setIsEditing] = useState(false);
-  const recordId = `${itemid}`;
+  const [updatedData, setUpdatedData] = useState({});
 
+  const { itemid } = router.query;
+  const [isEditing, setIsEditing] = useState(false);
   useEffect(() => {
-    console.log(itemid);
     const token = jsCookie.get("jwt");
     setJwt(token);
     const idAPI = async () => {
       try {
         const token = jsCookie.get("jwt");
         const res = await axios.get(
-          `http://localhost:1337/api/apps/${itemid}?populate=*  `,
+          `http://localhost:1337/api/apps/${itemid}?populate=*`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -30,6 +27,7 @@ export default function CallID() {
           }
         );
         setData(res.data.data);
+        setUpdatedData(res.data.data.attributes);
       } catch (err) {
         console.log(err);
       }
@@ -37,77 +35,87 @@ export default function CallID() {
 
     idAPI();
   }, []);
-
+  console.log(itemid);
   if (!data || !data.attributes || !data.attributes.Pic) {
     return <div>Loading...</div>;
   }
 
   return (
     <>
-      <div>
-        <h4>{data.attributes.Title}</h4>
-        <p>{data.attributes.Descriptions}</p>
-      </div>
-      {isEditing ? (
-        <div>
-          <input
-            type="text"
-            value={data.attributes.Title}
-            onChange={(e) =>
-              setData({
-                ...data,
-                attributes: { ...data.attributes, Title: e.target.value },
-              })
-            }
-          />
-          <textarea
-            value={data.attributes.Descriptions}
-            onChange={(e) =>
-              setData({
-                ...data,
-                attributes: {
-                  ...data.attributes,
-                  Descriptions: e.target.value,
-                },
-              })
-            }
-          />
-          <button
-            onClick={() => {
-              axios
-                .put(
-                  `${strapiBaseUrl}/${collectionName}/${recordId.data}`,
-                  data.attributes,
-                  {
-                    headers: { Authorization: `Bearer ${jwt}` },
-                  }
-                )
-                .then((response) => {
-                  console.log("Record updated successfully:", response.data);
-                  setIsEditing(false);
-                })
-                .catch((error) => {
-                  console.error("Error updating record:", error);
-                });
-            }}
-          >
-            Save
-          </button>
-          <button onClick={() => setIsEditing(false)}>Cancel</button>
-        </div>
-      ) : (
-        <div>
-          <img
-            src={`http://localhost:1337${data.attributes.Pic.data.attributes.url}`}
-          />
-          <p className={Styles.h3}>{data.attributes.Title}</p>
+      <center>
+        {isEditing ? (
           <div>
-            <h4>{data.attributes.Title}</h4>
-            <p>{data.attributes.Descriptions}</p>
+            <h4>Title : {data.attributes.Title}</h4>
+            <p>Descriptions : {data.attributes.Descriptions}</p>
+            <input
+              type="text"
+              value={data.attributes.Title}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  attributes: { ...data.attributes, Title: e.target.value },
+                })
+              }
+            />
+            <textarea
+              value={data.attributes.Descriptions}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  attributes: {
+                    ...data.attributes,
+                    Descriptions: e.target.value,
+                  },
+                })
+              }
+            />
+            <button
+              onClick={() => {
+                const newUpdatedData = {
+                  ...updatedData,
+                  Title: data.attributes.Title,
+                  Descriptions: data.attributes.Descriptions,
+                };
+                setUpdatedData(newUpdatedData);
+                console.log(newUpdatedData);
+                axios
+                  .put(
+                    `http://localhost:1337/api/apps/${itemid}?populate=*`,
+                    newUpdatedData,
+                    {
+                      headers: {
+                        Authorization: `Bearer ${jwt}`,
+                      },
+                    }
+                  )
+                  .then((res) => {
+                    console.log("Record updated successfully:", res.data);
+                    setIsEditing(false);
+                  })
+                  .catch((error) => {
+                    console.error("Error updating record:", error);
+                  });
+              }}
+            >
+              Save
+            </button>
+            <button onClick={() => setIsEditing(false)}>Cancel</button>
           </div>
-          <button onClick={() => setIsEditing(true)}>Edit</button>
-        </div>
-      )}
+        ) : (
+          <div>
+            <img
+              src={`http://localhost:1337${data.attributes.Pic.data.attributes.url}`}
+              width="200px"
+              height="200px"
+            />
+            <div>
+              <h4>Title : {data.attributes.Title}</h4>
+              <p>Descriptions : {data.attributes.Descriptions}</p>
+            </div>
+            <button onClick={() => setIsEditing(true)}>Edit</button>
+          </div>
+        )}
+      </center>
     </>
   );
 }
