@@ -31,6 +31,7 @@ export default function Home() {
   };
 
   const handleClick = (itemid) => {
+    localStorage.setItem("selectedItemId", itemid);
     router.push({
       pathname: `../demo/[id].js`,
       query: { itemid },

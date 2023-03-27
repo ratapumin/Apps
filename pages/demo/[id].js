@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-
 import jsCookie from "js-cookie";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -8,18 +7,17 @@ export default function CallID() {
   const [data, setData] = useState({});
   const [jwt, setJwt] = useState("");
   const router = useRouter();
-  const [updatedData, setUpdatedData] = useState({});
-
-  const { itemid } = router.query;
+  const [updatedData, setUpdatedData] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+
   useEffect(() => {
     const token = jsCookie.get("jwt");
     setJwt(token);
+    const selectedItemId = localStorage.getItem("selectedItemId");
     const idAPI = async () => {
       try {
-        const token = jsCookie.get("jwt");
         const res = await axios.get(
-          `http://localhost:1337/api/apps/${itemid}?populate=*`,
+          `http://localhost:1337/api/apps/${selectedItemId}?populate=*`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -28,6 +26,9 @@ export default function CallID() {
         );
         setData(res.data.data);
         setUpdatedData(res.data.data.attributes);
+        console.log(res.data.data.attributes.Pic.data.attributes.name);
+        console.log(selectedItemId);
+        console.log(res.data.data.attributes);
       } catch (err) {
         console.log(err);
       }
@@ -35,7 +36,7 @@ export default function CallID() {
 
     idAPI();
   }, []);
-  console.log(itemid);
+
   if (!data || !data.attributes || !data.attributes.Pic) {
     return <div>Loading...</div>;
   }
@@ -45,8 +46,27 @@ export default function CallID() {
       <center>
         {isEditing ? (
           <div>
+            <img
+              src={`http://localhost:1337${data.attributes.Pic.data.attributes.url}`}
+              width="200px"
+              height="200px"
+            />
             <h4>Title : {data.attributes.Title}</h4>
             <p>Descriptions : {data.attributes.Descriptions}</p>
+            <input
+              type="file"
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  attributes: {
+                    ...data.attributes,
+                    Pic: e.target.files[0],
+                  },
+                })
+              }
+            />
+
+            <br />
             <input
               type="text"
               value={data.attributes.Title}
@@ -57,6 +77,8 @@ export default function CallID() {
                 })
               }
             />
+            <br />
+
             <textarea
               value={data.attributes.Descriptions}
               onChange={(e) =>
@@ -69,19 +91,26 @@ export default function CallID() {
                 })
               }
             />
+            <br />
             <button
               onClick={() => {
                 const newUpdatedData = {
                   ...updatedData,
                   Title: data.attributes.Title,
                   Descriptions: data.attributes.Descriptions,
+                  Pic: data.attributes.Pic.attributes,
                 };
                 setUpdatedData(newUpdatedData);
-                console.log(newUpdatedData);
+                const selectedItemId = localStorage.getItem("selectedItemId");
                 axios
                   .put(
-                    `http://localhost:1337/api/apps/${itemid}?populate=*`,
-                    newUpdatedData,
+                    `http://localhost:1337/api/apps/${selectedItemId}?populate=*`,
+                    {
+                      data: {
+                        Title: data.attributes.Title,
+                        Descriptions: data.attributes.Descriptions,
+                      },
+                    },
                     {
                       headers: {
                         Authorization: `Bearer ${jwt}`,
@@ -89,11 +118,11 @@ export default function CallID() {
                     }
                   )
                   .then((res) => {
-                    console.log("Record updated successfully:", res.data);
+                    window.alert("Record updated successfully:", res.data);
                     setIsEditing(false);
                   })
                   .catch((error) => {
-                    console.error("Error updating record:", error);
+                    window.alert("Error updating record:", error);
                   });
               }}
             >
