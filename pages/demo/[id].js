@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 
 export default function CallID() {
   const [data, setData] = useState({});
+
   const [jwt, setJwt] = useState("");
   const router = useRouter();
   const [updatedData, setUpdatedData] = useState("");
@@ -26,9 +27,6 @@ export default function CallID() {
         );
         setData(res.data.data);
         setUpdatedData(res.data.data.attributes);
-        console.log(res.data.data.attributes.Pic.data.attributes.name);
-        console.log(selectedItemId);
-        console.log(res.data.data.attributes);
       } catch (err) {
         console.log(err);
       }
@@ -40,62 +38,6 @@ export default function CallID() {
   if (!data || !data.attributes || !data.attributes.Pic) {
     return <div>Loading...</div>;
   }
-
-  const newUpdatedData = {
-    Pic: data.attributes.Pic.data,
-    Title: data.attributes.Title,
-    Descriptions: data.attributes.Descriptions,
-  };
-
-  const handleSave = async () => {
-    setUpdatedData(newUpdatedData);
-    console.log(newUpdatedData);
-
-    // Create a FormData object
-    const formData = new FormData();
-    formData.append("Title", newUpdatedData.Title);
-    formData.append("Descriptions", newUpdatedData.Descriptions);
-    formData.append("Pic", data.attributes.Pic.data);
-
-    try {
-      const uploadRes = await axios.post(
-        "http://localhost:1337/api/upload",
-
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${jwt}`,
-          },
-        }
-      );
-      console.log("Image uploaded successfully:", uploadRes.data);
-
-      const updateRes = await axios.put(
-        `http://localhost:1337/api/apps/${localStorage.getItem(
-          "selectedItemId"
-        )}?populate=*`,
-        {
-          Pic: {
-            url: uploadRes.data[0].url,
-          },
-          Title: newUpdatedData.Title,
-          Descriptions: newUpdatedData.Descriptions,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${jwt}`,
-          },
-        }
-      );
-      console.log("Record updated successfully:", updateRes.data);
-      window.alert("Record updated successfully:", updateRes.data);
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      window.alert("Error uploading image:", error);
-    }
-  };
 
   return (
     <>
@@ -153,40 +95,28 @@ export default function CallID() {
             <br />
             <button
               onClick={() => {
-                setUpdatedData(newUpdatedData);
-                console.log(newUpdatedData);
                 const selectedItemId = localStorage.getItem("selectedItemId");
-
-                // Create a FormData object
                 const formData = new FormData();
-                formData.append("files", newUpdatedData.Pic); // Append the updated image to FormData
-                formData.append("text", newUpdatedData.Title);
-                formData.append("text", newUpdatedData.Descriptions);
-                // Send the FormData object using axios.post
-                axios
-                  .post("http://localhost:1337/api/upload", formData, {
+                formData.append("Pic", data.attributes.Pic.data);
+                try{
+                const uploadimg = await axios
+                  .post(`http://localhost:1337/api/upload`, formData, {
                     headers: {
+                      "Content-Type": "multipart/form-data",
                       Authorization: `Bearer ${jwt}`,
-                      "Content-Type": "multipart/form-data", // Set the Content-Type header to multipart/form-data
-                    },
-                  })
-                  .then((response) => {
-                    console.log(
-                      "Image uploaded successfully:",
-                      response.data[0]
-                    );
-                    const imageUrl = response.data[0].url;
-
-                    // Update the record with the new image URL
+                  },
+                })
+                  .then((res) => {
+                    console.log("Image uploaded:", uploadimg.data);
                     axios
                       .put(
-                        `http://localhost:1337/api/apps/${selectedItemId}?populoate=*`,
+                        `http://localhost:1337/api/apps/${selectedItemId}?populate=*`,
                         {
-                          Pic: {
-                            url: imageUrl,
+                          data: {
+                            Title: data.attributes.Title,
+                            Descriptions: data.attributes.Descriptions,
+                            Pic: { id: res.data[0].id },
                           },
-                          Title: newUpdatedData.Title,
-                          Descriptions: newUpdatedData.Descriptions,
                         },
                         {
                           headers: {
@@ -195,18 +125,16 @@ export default function CallID() {
                         }
                       )
                       .then((res) => {
-                        console.log("Record updated successfully:", res.data);
-                        window.alert("Record updated successfully:", res.data);
+                        console.log("Updated Success:", res.data);
+                        window.alert(
+                          `Updated Success: ${JSON.stringify(res.data)}`
+                        );
                         setIsEditing(false);
                       })
                       .catch((error) => {
                         console.error("Error updating record:", error);
-                        window.alert("Error updating record:", error);
+                        window.alert("can not update:", error);
                       });
-                  })
-                  .catch((error) => {
-                    console.error("Error uploading image:", error);
-                    window.alert("Error uploading image:", error);
                   });
               }}
             >
