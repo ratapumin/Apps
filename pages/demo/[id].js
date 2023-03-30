@@ -5,10 +5,8 @@ import { useRouter } from "next/router";
 
 export default function CallID() {
   const [data, setData] = useState({});
-
   const [jwt, setJwt] = useState("");
   const router = useRouter();
-  const [updatedData, setUpdatedData] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
@@ -26,7 +24,7 @@ export default function CallID() {
           }
         );
         setData(res.data.data);
-        setUpdatedData(res.data.data.attributes);
+        console.log(res.data.data.attributes.Pic, data.id);
       } catch (err) {
         console.log(err);
       }
@@ -94,48 +92,50 @@ export default function CallID() {
             />
             <br />
             <button
-              onClick={() => {
+              onClick={async () => {
                 const selectedItemId = localStorage.getItem("selectedItemId");
                 const formData = new FormData();
-                formData.append("Pic", data.attributes.Pic.data);
-                try{
-                const uploadimg = await axios
-                  .post(`http://localhost:1337/api/upload`, formData, {
-                    headers: {
-                      "Content-Type": "multipart/form-data",
-                      Authorization: `Bearer ${jwt}`,
-                  },
-                })
-                  .then((res) => {
-                    console.log("Image uploaded:", uploadimg.data);
-                    axios
-                      .put(
-                        `http://localhost:1337/api/apps/${selectedItemId}?populate=*`,
-                        {
-                          data: {
-                            Title: data.attributes.Title,
-                            Descriptions: data.attributes.Descriptions,
-                            Pic: { id: res.data[0].id },
-                          },
-                        },
-                        {
-                          headers: {
-                            Authorization: `Bearer ${jwt}`,
-                          },
-                        }
-                      )
-                      .then((res) => {
-                        console.log("Updated Success:", res.data);
-                        window.alert(
-                          `Updated Success: ${JSON.stringify(res.data)}`
-                        );
-                        setIsEditing(false);
-                      })
-                      .catch((error) => {
-                        console.error("Error updating record:", error);
-                        window.alert("can not update:", error);
-                      });
-                  });
+                formData.append("files", data.attributes.Pic.data);
+                let Imageupdate;
+                try {
+                  const uploadRes = await axios
+                    .post(`http://localhost:1337/api/upload`, formData, {
+                      headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${jwt}`,
+                      },
+                    })
+                    .then((uploadRes) => {
+                      console.log("Image uploaded:", uploadRes.data[0]);
+                      Imageupdate = uploadRes.data[0].url;
+                      console.log(Imageupdate);
+                    });
+
+                  const updateRecord = await axios.put(
+                    `http://localhost:1337/api/apps/${selectedItemId}?populate=*`,
+                    {
+                      data: {
+                        Title: data.attributes.Title,
+                        Descriptions: data.attributes.Descriptions,
+                        Pic: Imageupdate,
+                      },
+                    },
+                    {
+                      headers: {
+                        Authorization: `Bearer ${jwt}`,
+                      },
+                    }
+                  );
+
+                  console.log("Updated Success:", updateRecord.data);
+                  window.alert(
+                    `Updated Success: ${JSON.stringify(updateRecord.data)}`
+                  );
+                  setIsEditing(false);
+                } catch (error) {
+                  console.error("Error updating record:", error);
+                  window.alert("can not update:" + error);
+                }
               }}
             >
               Save

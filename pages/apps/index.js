@@ -65,7 +65,6 @@ export default function Home() {
                   <p className={Styles.boxtext}>
                     {item.attributes.Descriptions}
                   </p>
-
                   <p
                     className={Styles.button}
                     onClick={() => handleClick(item.id)}
