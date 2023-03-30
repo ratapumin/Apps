@@ -26,10 +26,10 @@ export default function LoginPage() {
           "user",
           JSON.stringify({ username, email, token })
         );
+
         window.alert("Login successful!");
         window.alert("welcome :" + username);
-
-        router.push("/");
+        location.reload("../apps/index");
       } else {
         setErrorMessage("Authentication failed. Please try again.");
       }
@@ -59,7 +59,9 @@ export default function LoginPage() {
       </label>
       {errorMessage && <p>{errorMessage}</p>}
 
-      <button type="submit">Login</button>
+      <button type="submit" href="../index.js">
+        Login
+      </button>
     </form>
   );
 }

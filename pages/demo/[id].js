@@ -8,6 +8,9 @@ export default function CallID() {
   const [jwt, setJwt] = useState("");
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imageURL, setImageURL] = useState("");
+  const [shouldUpdateImage, setShouldUpdateImage] = useState(false);
 
   useEffect(() => {
     const token = jsCookie.get("jwt");
@@ -24,7 +27,9 @@ export default function CallID() {
           }
         );
         setData(res.data.data);
-        console.log(res.data.data.attributes.Pic, data.id);
+        setImageURL(
+          `http://localhost:1337${res.data.data.attributes.Pic.data.attributes.url}`
+        );
       } catch (err) {
         console.log(err);
       }
@@ -33,38 +38,70 @@ export default function CallID() {
     idAPI();
   }, []);
 
-  if (!data || !data.attributes || !data.attributes.Pic) {
+  if (!data || !data.attributes) {
     return <div>Loading...</div>;
   }
+
+  const handleImageChange = (e) => {
+    setImageFile(e.target.files[0]);
+    setShouldUpdateImage(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      let updateData = {
+        data: {
+          Title: data.attributes.Title,
+          Descriptions: data.attributes.Descriptions,
+        },
+      };
+
+      if (shouldUpdateImage) {
+        const formData = new FormData();
+        formData.append("files", imageFile);
+        const uploadRes = await axios.post(
+          `http://localhost:1337/api/upload`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${jwt}`,
+            },
+          }
+        );
+        const uploadedImageId = uploadRes.data[0].id;
+        updateData.data.Pic = uploadedImageId;
+      }
+
+      const updateRecord = await axios.put(
+        `http://localhost:1337/api/apps/${data.id}?populate=*`,
+        updateData,
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        }
+      );
+
+      console.log("Updated Success:", updateRecord.data);
+      setData(updateRecord.data.data);
+      location.reload();
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating record:", error);
+      window.alert("can not update:" + error);
+    }
+  };
 
   return (
     <>
       <center>
         {isEditing ? (
           <div>
-            <img
-              src={`http://localhost:1337${data.attributes.Pic.data}`}
-              width="200px"
-              height="200px"
-            />
+            <img src={imageURL} width="200px" height="200px" />
             <h4>Title : {data.attributes.Title}</h4>
             <p>Descriptions : {data.attributes.Descriptions}</p>
-            <input
-              type="file"
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  attributes: {
-                    ...data.attributes,
-                    Pic: {
-                      ...data.attributes.Pic,
-                      data: e.target.files[0],
-                    },
-                  },
-                })
-              }
-            />
-
+            <input type="file" onChange={handleImageChange} />
             <br />
             <input
               type="text"
@@ -77,7 +114,6 @@ export default function CallID() {
               }
             />
             <br />
-
             <textarea
               value={data.attributes.Descriptions}
               onChange={(e) =>
@@ -91,65 +127,14 @@ export default function CallID() {
               }
             />
             <br />
-            <button
-              onClick={async () => {
-                const selectedItemId = localStorage.getItem("selectedItemId");
-                const formData = new FormData();
-                formData.append("files", data.attributes.Pic.data);
-                let Imageupdate;
-                try {
-                  const uploadRes = await axios
-                    .post(`http://localhost:1337/api/upload`, formData, {
-                      headers: {
-                        "Content-Type": "multipart/form-data",
-                        Authorization: `Bearer ${jwt}`,
-                      },
-                    })
-                    .then((uploadRes) => {
-                      console.log("Image uploaded:", uploadRes.data[0]);
-                      Imageupdate = uploadRes.data[0].url;
-                      console.log(Imageupdate);
-                    });
-
-                  const updateRecord = await axios.put(
-                    `http://localhost:1337/api/apps/${selectedItemId}?populate=*`,
-                    {
-                      data: {
-                        Title: data.attributes.Title,
-                        Descriptions: data.attributes.Descriptions,
-                        Pic: Imageupdate,
-                      },
-                    },
-                    {
-                      headers: {
-                        Authorization: `Bearer ${jwt}`,
-                      },
-                    }
-                  );
-
-                  console.log("Updated Success:", updateRecord.data);
-                  window.alert(
-                    `Updated Success: ${JSON.stringify(updateRecord.data)}`
-                  );
-                  setIsEditing(false);
-                } catch (error) {
-                  console.error("Error updating record:", error);
-                  window.alert("can not update:" + error);
-                }
-              }}
-            >
-              Save
-            </button>
+            <button onClick={handleSave}>Save</button>
 
             <button onClick={() => setIsEditing(false)}>Cancel</button>
           </div>
         ) : (
           <div>
-            <img
-              src={`http://localhost:1337${data.attributes.Pic.data.attributes.url}`}
-              width="200px"
-              height="200px"
-            />
+            <img src={imageURL} width="200px" height="200px" />
+
             <div>
               <h4>Title : {data.attributes.Title}</h4>
               <p>Descriptions : {data.attributes.Descriptions}</p>

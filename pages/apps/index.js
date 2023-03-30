@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import Styles from "@/styles/demo.module.css";
-import Link from "next/link";
 import jsCookie from "js-cookie";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -9,6 +8,7 @@ export default function Home() {
   const router = useRouter();
   const [data, setData] = useState([]);
   const [jwt, setJwt] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const token = jsCookie.get("jwt");
@@ -47,7 +47,16 @@ export default function Home() {
       <div className={Styles.bg}>
         <div className={Styles.card_container}>
           <h6 className={Styles.h6}>Your Pre-title goes here</h6>
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-toggle="modal"
+            data-target="#exampleModal"
+          >
+            Launch demo modal
+          </button>
           <h3 className={Styles.h1}>Application demo build under SaaS</h3>
+
           {data.map((item) => (
             <div className={Styles.card} key={item.id}>
               <div className={Styles.front}>
