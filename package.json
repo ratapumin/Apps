@@ -22,6 +22,7 @@
     "nookies": "^2.5.2",
     "popper.js": "^1.16.1",
     "react": "18.2.0",
+    "react-bootstrap": "^2.7.2",
     "react-dom": "18.2.0",
     "strapi-sdk-javascript": "^0.3.3",
     "universal-cookie": "^4.0.4"
