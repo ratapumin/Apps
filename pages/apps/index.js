@@ -3,6 +3,7 @@ import Styles from "@/styles/demo.module.css";
 import jsCookie from "js-cookie";
 import axios from "axios";
 import { useRouter } from "next/router";
+import Swal from "sweetalert2";
 
 export default function Home() {
   const router = useRouter();
@@ -109,27 +110,41 @@ export default function Home() {
         console.log("No item selected");
         return;
       }
-      const config = {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-          "Content-Type": "application/json",
-        },
-      };
-      const response = await axios.delete(
-        `http://localhost:1337/api/apps/${selectedItemId}?populate=*`,
-        config
-      );
+      //sweetalertDelete
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      });
 
-      console.log("Deleted Success:", response.data);
-      localStorage.removeItem("selectedItemId");
+      if (result.isConfirmed) {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+            "Content-Type": "application/json",
+          },
+        };
+        const response = await axios.delete(
+          `http://localhost:1337/api/apps/${selectedItemId}?populate=*`,
+          config
+        );
 
-      setData([]);
-      setIsEditing(false);
-      location.reload();
+        console.log("Deleted Success:", response.data);
+        localStorage.removeItem("selectedItemId");
+
+        setData([]);
+        setIsEditing(false);
+        location.reload();
+      }
     } catch (err) {
       window.alert("can not delete:" + err);
     }
   };
+
   const handleClickDelete = (id) => {
     handleDeleteData(id);
   };
