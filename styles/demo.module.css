@@ -220,6 +220,123 @@
 
 
 
+
+ /* CSS */
+ .buttonCreate {
+     appearance: none;
+     backface-visibility: hidden;
+     background-color: #2f80ed;
+     border-radius: 10px;
+     border-style: none;
+     box-shadow: none;
+     box-sizing: border-box;
+     color: #fff;
+     cursor: pointer;
+     display: inline-block;
+     font-family: Inter, -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+     font-size: 15px;
+     font-weight: 500;
+     height: 50px;
+     letter-spacing: normal;
+     line-height: 1.5;
+     outline: none;
+     overflow: hidden;
+     padding: 14px 30px;
+     position: relative;
+     text-align: center;
+     text-decoration: none;
+     transform: translate3d(0, 0, 0);
+     transition: all .3s;
+     user-select: none;
+     -webkit-user-select: none;
+     touch-action: manipulation;
+     vertical-align: top;
+     white-space: nowrap;
+     margin-left: 150px;
+ }
+
+ .buttonCreate:hover {
+     background-color: #1366d6;
+     box-shadow: rgba(0, 0, 0, .05) 0 5px 30px, rgba(0, 0, 0, .05) 0 1px 4px;
+     opacity: 1;
+     transform: translateY(0);
+     transition-duration: .35s;
+ }
+
+ .buttonCreate:hover:after {
+     opacity: .5;
+ }
+
+ .buttonCreate:active {
+     box-shadow: rgba(0, 0, 0, .1) 0 3px 6px 0, rgba(0, 0, 0, .1) 0 0 10px 0, rgba(0, 0, 0, .1) 0 1px 4px -1px;
+     transform: translateY(2px);
+     transition-duration: .35s;
+ }
+
+ .buttonCreate:active:after {
+     opacity: 1;
+ }
+
+ @media (min-width: 768px) {
+     .buttonCreate {
+         padding: 14px 22px;
+         width: 176px;
+     }
+ }
+
+
+ .button-62 {
+     border: 0;
+     border-radius: 12px;
+     color: #FFFFFF;
+     cursor: pointer;
+     display: inline-block;
+     font-family: -apple-system, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+     font-size: 16px;
+     font-weight: 500;
+     line-height: 2.5;
+     outline: transparent;
+     padding: 0 1rem;
+     text-align: center;
+     text-decoration: none;
+     transition: box-shadow .2s ease-in-out;
+     user-select: none;
+     -webkit-user-select: none;
+     touch-action: manipulation;
+     white-space: nowrap;
+ }
+
+
+ /* CSS */
+ .buttonDelete {
+     display: inline-block;
+     top: 257px;
+     margin-left: 145px;
+     background: linear-gradient(to bottom right, #EF4765, #FF9A5A);
+     border: 0px;
+     box-sizing: border-box;
+     color: #00132C;
+     font-family: 'Barlow', sans-serif;
+     font-size: 16px;
+     padding: 14px 20px;
+     position: absolute;
+     text-decoration: none;
+     user-select: none;
+     -webkit-user-select: none;
+     touch-action: manipulation;
+     margin-left: 25px;
+ }
+
+
+
+ .buttonDelete:not([disabled]):focus {
+     box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(239, 71, 101, 0.5), .125rem .125rem 1rem rgba(255, 154, 90, 0.5);
+ }
+
+ .buttonDelete:not([disabled]):hover {
+     box-shadow: 0 0 .25rem rgba(0, 0, 0, 0.5), -.125rem -.125rem 1rem rgba(239, 71, 101, 0.5), .125rem .125rem 1rem rgba(255, 154, 90, 0.5);
+ }
+
  .modalbuttoncreate {
      margin-top: 50px;
  }

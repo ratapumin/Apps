@@ -43,18 +43,26 @@ export default function Home() {
 
   // CreateData
   const handleCreateImage = (e) => {
-    setImageFile(e.target.files[0]);
+    if (e.target.files?.length) {
+      setImageFile(e.target.files[0]);
+    }
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (
+      (!data.attributes?.Title || "",
+      !data.attributes?.Descriptions || "",
+      !imageFile)
+    ) {
+      return null;
+    }
 
     let createData = {
       data: {
-        Title: data.attributes.Title,
-        Descriptions: data.attributes.Descriptions,
+        Title: data.attributes?.Title || "",
+        Descriptions: data.attributes?.Descriptions || "",
       },
     };
-
     const formData = new FormData();
     formData.append("files", imageFile);
     try {
@@ -68,6 +76,7 @@ export default function Home() {
           },
         }
       );
+
       const createImage = createimg.data[0].id;
       createData.data.Pic = createImage;
 
@@ -80,20 +89,22 @@ export default function Home() {
           },
         }
       );
+
       console.log("Updated Success : ", createDataRecrod.data);
       console.log(createDataRecrod.data);
       setShowModal(false);
       setIsEditing(false);
       callAPI();
+      location.reload();
     } catch (err) {
       console.log("Error update record", err);
       window.alert("can not update" + err);
     }
   };
 
+  //Delete function
   const handleDeleteData = async (selectedItemId) => {
     try {
-      const selectedItemId = localStorage.getItem("selectedItemId");
       if (!selectedItemId) {
         console.log("No item selected");
         return;
@@ -114,6 +125,7 @@ export default function Home() {
 
       setData([]);
       setIsEditing(false);
+      location.reload();
     } catch (err) {
       window.alert("can not delete:" + err);
     }
@@ -135,6 +147,7 @@ export default function Home() {
                 <label htmlFor="title">Title</label>
                 <input
                   type="text"
+                  required
                   value={data?.attributes?.Title || ""}
                   onChange={(e) =>
                     setData({
@@ -148,6 +161,7 @@ export default function Home() {
                 <label htmlFor="description">Description</label>
                 <input
                   type="text"
+                  required
                   value={data?.attributes?.Descriptions || ""}
                   onChange={(e) =>
                     setData({
@@ -162,16 +176,15 @@ export default function Home() {
               </div>
               <div>
                 <label htmlFor="image">Image</label>
-                <input type="file" onChange={handleCreateImage} />
+                <input type="file" required onChange={handleCreateImage} />
               </div>
               <button type="submit" onClick={() => setIsEditing(true)}>
                 Create Item
               </button>
               <button
-                className={Styles.close}
                 onClick={() => {
-                  setShowModal(false);
                   setIsEditing(false);
+                  setShowModal(false);
                 }}
               >
                 Close
@@ -182,8 +195,17 @@ export default function Home() {
         </div>
         <div className={Styles.card_container}>
           <h6 className={Styles.h6}>Your Pre-title goes here</h6>
+          <button
+            onClick={() => {
+              setShowModal(true);
+              setIsEditing(false);
+            }}
+            className={Styles.buttonCreate}
+          >
+            add Item
+          </button>
           <h3 className={Styles.h1}>Application demo build under SaaS</h3>
-          <button onClick={() => setShowModal(true)}>Create Item</button>
+
           {Array.isArray(data) &&
             data.map((item) => (
               <div className={Styles.card} key={item.id}>
@@ -208,7 +230,10 @@ export default function Home() {
                     >
                       click
                     </p>
-                    <button onClick={() => handleClickDelete(item.id)}>
+                    <button
+                      className={Styles.buttonDelete}
+                      onClick={() => handleClickDelete(item.id)}
+                    >
                       Delete
                     </button>
                   </div>

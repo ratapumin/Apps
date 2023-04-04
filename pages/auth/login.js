@@ -29,7 +29,7 @@ export default function LoginPage() {
 
         window.alert("Login successful!");
         window.alert("welcome :" + username);
-        location.reload("../apps/index");
+        location.reload("/");
       } else {
         setErrorMessage("Authentication failed. Please try again.");
       }
