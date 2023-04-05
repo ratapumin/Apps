@@ -10,7 +10,6 @@ export default function Home() {
   const [data, setData] = useState([]);
   const [jwt, setJwt] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [imageFile, setImageFile] = useState(null);
 
   const callAPI = async () => {
@@ -42,34 +41,76 @@ export default function Home() {
     });
   };
 
-  // CreateData
-  const handleCreateImage = (e) => {
-    if (e.target.files?.length) {
-      setImageFile(e.target.files[0]);
-    }
-  };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (
-      (!data.attributes?.Title || "",
-      !data.attributes?.Descriptions || "",
-      !imageFile)
-    ) {
-      return null;
-    }
-
+  const showInputDialog = async () => {
     let createData = {
       data: {
-        Title: data.attributes?.Title || "",
-        Descriptions: data.attributes?.Descriptions || "",
+        Title: data.attributes?.Title,
+        Descriptions: data.attributes?.Descriptions,
       },
     };
-    const formData = new FormData();
+    let formData = new FormData();
     formData.append("files", imageFile);
-    try {
+
+    const allData = [createData, formData];
+
+    const result = await Swal.fire({
+      title: "Enter Title and Description",
+      html:
+        "<form>" +
+        '<input  id="swal-input1"  class="swal2-input " placeholder="Title"  value="' +
+        (data.attributes?.Title || "") +
+        '" required>' +
+        '<input id="swal-input2"  class="swal2-input " placeholder="Description" value="' +
+        (data.attributes?.Descriptions || "") +
+        '"required>' +
+        '<input type="file" id="swal-input3"  class="swal2-input" placeholder="Description" value="' +
+        (data.attributes?.Pic.data || "") +
+        '"required>' +
+        "</form>",
+
+      showConfirmButton: true,
+      showCancelButton: true,
+
+      preConfirm: () => {
+        event.preventDefault();
+        if (
+          document.getElementById("swal-input1", "swal-input2", "swal-input3")
+            .value == "" ||
+          document.getElementById("swal-input1", "swal-input2", "swal-input3")
+            .value == "" ||
+          document.getElementById("swal-input1", "swal-input2", "swal-input3")
+            .value == null
+        ) {
+          Swal.showValidationMessage(`ID is a required field`);
+        }
+        createData.data.Title = document.getElementById("swal-input1").value;
+        createData.data.Descriptions =
+          document.getElementById("swal-input2").value;
+        const fileInput = document.getElementById("swal-input3");
+        if (fileInput.files.length > 0) {
+          formData.append("files", fileInput.files[0]);
+
+          if (createData.data.attributes) {
+            createData.data.attributes.Pic = {
+              data: fileInput.files[0],
+            };
+          }
+        }
+        return { allData };
+      },
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "Create Item",
+          text: "Create Successfully",
+          icon: "success",
+          showConfirmButton: false,
+          timer: 1200,
+        });
+      }
       const createimg = await axios.post(
         `http://localhost:1337/api/upload`,
-        formData,
+        allData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -83,24 +124,15 @@ export default function Home() {
 
       const createDataRecrod = await axios.post(
         "http://localhost:1337/api/apps",
-        createData,
+        allData,
         {
           headers: {
             Authorization: `Bearer ${jwt}`,
           },
         }
       );
-
-      console.log("Updated Success : ", createDataRecrod.data);
-      console.log(createDataRecrod.data);
-      setShowModal(false);
-      setIsEditing(false);
-      callAPI();
-      location.reload();
-    } catch (err) {
-      console.log("Error update record", err);
-      window.alert("can not update" + err);
-    }
+      console.log(createDataRecrod.data.data);
+    });
   };
 
   //Delete function
@@ -111,7 +143,7 @@ export default function Home() {
         return;
       }
       //sweetalertDelete
-      const result = await Swal.fire({
+      const sweetDelete = await Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
         icon: "warning",
@@ -121,13 +153,23 @@ export default function Home() {
         confirmButtonText: "Yes, delete it!",
       });
 
-      if (result.isConfirmed) {
+      if (sweetDelete.isConfirmed) {
+        await Swal.fire({
+          title: "Deleted Successfully",
+          text: "Deleted Successfully",
+          icon: "success",
+          Button: false,
+        });
+
         const config = {
           headers: {
             Authorization: `Bearer ${jwt}`,
             "Content-Type": "application/json",
           },
         };
+        {
+          location.reload();
+        }
         const response = await axios.delete(
           `http://localhost:1337/api/apps/${selectedItemId}?populate=*`,
           config
@@ -138,7 +180,6 @@ export default function Home() {
 
         setData([]);
         setIsEditing(false);
-        location.reload();
       }
     } catch (err) {
       window.alert("can not delete:" + err);
@@ -151,69 +192,11 @@ export default function Home() {
   return (
     <>
       <div className={Styles.bg}>
-        {/* modalstart */}
-        <div
-          className={Styles.modal}
-          style={{ display: showModal ? "block" : "none" }}
-        >
-          <div className={Styles.modalContent}>
-            <form onSubmit={handleSubmit}>
-              <div>
-                <label htmlFor="title">Title</label>
-                <input
-                  type="text"
-                  required
-                  value={data?.attributes?.Title || ""}
-                  onChange={(e) =>
-                    setData({
-                      ...data,
-                      attributes: { ...data.attributes, Title: e.target.value },
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <label htmlFor="description">Description</label>
-                <input
-                  type="text"
-                  required
-                  value={data?.attributes?.Descriptions || ""}
-                  onChange={(e) =>
-                    setData({
-                      ...data,
-                      attributes: {
-                        ...data.attributes,
-                        Descriptions: e.target.value,
-                      },
-                    })
-                  }
-                />
-              </div>
-              <div>
-                <label htmlFor="image">Image</label>
-                <input type="file" required onChange={handleCreateImage} />
-              </div>
-              <button type="submit" onClick={() => setIsEditing(true)}>
-                Create Item
-              </button>
-              <button
-                onClick={() => {
-                  setIsEditing(false);
-                  setShowModal(false);
-                }}
-              >
-                Close
-              </button>
-            </form>
-            {/* modalend */}
-          </div>
-        </div>
         <div className={Styles.card_container}>
           <h6 className={Styles.h6}>Your Pre-title goes here</h6>
           <button
             onClick={() => {
-              setShowModal(true);
-              setIsEditing(false);
+              showInputDialog();
             }}
             className={Styles.buttonCreate}
           >
