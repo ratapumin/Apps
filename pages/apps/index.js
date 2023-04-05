@@ -51,8 +51,6 @@ export default function Home() {
     let formData = new FormData();
     formData.append("files", imageFile);
 
-    const allData = [createData, formData];
-
     const result = await Swal.fire({
       title: "Enter Title and Description",
       html:
@@ -96,7 +94,7 @@ export default function Home() {
             };
           }
         }
-        return { allData };
+        return { createData };
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -107,31 +105,32 @@ export default function Home() {
           showConfirmButton: false,
           timer: 1200,
         });
+
+        const createimg = await axios.post(
+          `http://localhost:1337/api/upload`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${jwt}`,
+            },
+          }
+        );
+
+        const createImage = createimg.data[0].id;
+        createData.data.Pic = createImage;
+
+        const createDataRecrod = await axios.post(
+          "http://localhost:1337/api/apps",
+          createData,
+          {
+            headers: {
+              Authorization: `Bearer ${jwt}`,
+            },
+          }
+        );
+        console.log(createDataRecrod.data.data);
       }
-      const createimg = await axios.post(
-        `http://localhost:1337/api/upload`,
-        allData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${jwt}`,
-          },
-        }
-      );
-
-      const createImage = createimg.data[0].id;
-      createData.data.Pic = createImage;
-
-      const createDataRecrod = await axios.post(
-        "http://localhost:1337/api/apps",
-        allData,
-        {
-          headers: {
-            Authorization: `Bearer ${jwt}`,
-          },
-        }
-      );
-      console.log(createDataRecrod.data.data);
     });
   };
 
