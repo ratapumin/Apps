@@ -3,6 +3,7 @@ import jsCookie from "js-cookie";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import LoginPage from "@/pages/auth/login";
+
 export default function Navbar() {
   const router = useRouter();
   const { asPath } = useRouter();
@@ -18,6 +19,12 @@ export default function Navbar() {
       setUser(JSON.parse(storedUser));
     }
   }, []);
+
+  const handleLogout = () => {
+    jsCookie.remove("jwt");
+    setUser(null);
+    router.push("/");
+  };
 
   return (
     <nav className="topnav">
@@ -37,9 +44,7 @@ export default function Navbar() {
         Demo
       </Link>
       <div className="login-container">
-        <>
-          <LoginPage />
-        </>
+        <LoginPage />
       </div>
     </nav>
   );
