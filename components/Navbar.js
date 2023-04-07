@@ -2,8 +2,7 @@ import Link from "next/link";
 import jsCookie from "js-cookie";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import { set } from "lodash";
-
+import LoginPage from "@/pages/auth/login";
 export default function Navbar() {
   const router = useRouter();
   const { asPath } = useRouter();
@@ -19,14 +18,6 @@ export default function Navbar() {
       setUser(JSON.parse(storedUser));
     }
   }, []);
-
-  const handleLogout = () => {
-    jsCookie.remove("jwt");
-    localStorage.removeItem("user");
-    setUser(null);
-    setJwt("");
-    router.push("/");
-  };
 
   return (
     <nav className="topnav">
@@ -46,20 +37,9 @@ export default function Navbar() {
         Demo
       </Link>
       <div className="login-container">
-        {user && (
-          <>
-            <p>Logged in as {user.username}</p>
-            <button onClick={handleLogout}>Logout</button>
-          </>
-        )}
-        {!user && (
-          <Link
-            href="/auth/login"
-            className={asPath === "/auth/login" ? "list active" : "list"}
-          >
-            Login
-          </Link>
-        )}
+        <>
+          <LoginPage />
+        </>
       </div>
     </nav>
   );

@@ -1,21 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import jsCookie from "js-cookie";
+import Swal from "sweetalert2";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // add state for login status
   const router = useRouter();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  useEffect(() => {
+    if (isLoggedIn) {
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ username: email, email, token: jsCookie.get("jwt") })
+      );
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [isLoggedIn]);
+
+  const handleLogin = async () => {
+    const loginForm = await Swal.fire({
+      title: "Login Form",
+      html: `<input type="text" id="email" class="swal2-input" placeholder="Email">
+        <input type="password" id="password" class="swal2-input" placeholder="Password">`,
+      showConfirmButton: true,
+      showCancelButton: true,
+    });
+
+    const email = Swal.getPopup().querySelector("#email").value;
+    const password = Swal.getPopup().querySelector("#password").value;
 
     try {
       const res = await axios.post("http://localhost:1337/api/auth/local", {
         identifier: email,
-        password,
+        password: password,
       });
 
       if (res.status === 200) {
@@ -26,42 +48,35 @@ export default function LoginPage() {
           "user",
           JSON.stringify({ username, email, token })
         );
-
         window.alert("Login successful!");
-        window.alert("welcome :" + username);
-        location.reload("/");
-      } else {
-        setErrorMessage("Authentication failed. Please try again.");
+        window.alert("Welcome: " + username);
+        setIsLoggedIn(true);
       }
     } catch (error) {
       console.error(error);
-      setErrorMessage("An error occurred during login. Please try again.");
+      Swal.showValidationMessage("Invalid login credentials");
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Email:
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </label>
-      <label>
-        Password:
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </label>
-      {errorMessage && <p>{errorMessage}</p>}
+  const handleLogout = () => {
+    jsCookie.remove("jwt");
+    setIsLoggedIn(false);
+    router.push("/");
+  };
 
-      <button type="submit" href="../index.js">
-        Login
-      </button>
-    </form>
+  return (
+    <div>
+      {isLoggedIn ? (
+        <>
+          <button onClick={handleLogout}>Logout</button>
+          <p>Welcome, {JSON.parse(localStorage.getItem("user")).username}</p>
+        </>
+      ) : (
+        <>
+          <button onClick={handleLogin}>Login</button>
+          <p>{errorMessage}</p>
+        </>
+      )}
+    </div>
   );
 }

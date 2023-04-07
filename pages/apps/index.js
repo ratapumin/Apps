@@ -79,7 +79,7 @@ export default function Home() {
           document.getElementById("swal-input1", "swal-input2", "swal-input3")
             .value == null
         ) {
-          Swal.showValidationMessage(`ID is a required field`);
+          Swal.showValidationMessage(`Unable to pass null`);
         }
         createData.data.Title = document.getElementById("swal-input1").value;
         createData.data.Descriptions =
