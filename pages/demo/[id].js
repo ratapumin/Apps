@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import jsCookie from "js-cookie";
 import axios from "axios";
 import { useRouter } from "next/router";
+import Swal from "sweetalert2";
 
 export default function CallID() {
   const [data, setData] = useState({});
@@ -85,11 +86,25 @@ export default function CallID() {
 
       console.log("Updated Success:", updateRecord.data);
       setData(updateRecord.data.data);
-      location.reload();
       setIsEditing(false);
+      Swal.fire({
+        title: "Edit Successfully",
+        icon: "success",
+        showConfirmButton: false,
+        timer: 1200,
+      });
+      setTimeout(() => {
+        location.reload();
+      }, 1200);
     } catch (error) {
       console.error("Error updating record:", error);
-      window.alert("can not update:" + error);
+      Swal.fire({
+        title: "Error",
+        text: `Failed to update data: ${error}`,
+        icon: "error",
+        confirmButtonText: false,
+        timer: 1200,
+      });
     }
   };
 
@@ -103,38 +118,67 @@ export default function CallID() {
             <p>Descriptions : {data.attributes.Descriptions}</p>
             <input type="file" onChange={handleImageChange} />
             <br />
-            <input
-              type="text"
-              value={data.attributes.Title}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  attributes: { ...data.attributes, Title: e.target.value },
-                })
-              }
-            />
-            <br />
-            <textarea
-              value={data.attributes.Descriptions}
-              onChange={(e) =>
-                setData({
-                  ...data,
-                  attributes: {
-                    ...data.attributes,
-                    Descriptions: e.target.value,
+            <button
+              onClick={() =>
+                Swal.fire({
+                  title: "Edit Title and Descriptions",
+                  html: `
+        <input id="title" type="text" class="swal2-input" value="${data.attributes.Title}">
+        <input id="descriptions" class="swal2-input" value="${data.attributes.Descriptions}">`,
+                  showCancelButton: true,
+                  confirmButtonText: "Save",
+                  cancelButtonText: "Cancel",
+                  preConfirm: () => {
+                    const title = Swal.getPopup().querySelector("#title").value;
+                    const descriptions =
+                      Swal.getPopup().querySelector("#descriptions").value;
+                    return { title, descriptions };
                   },
+                  inputValidator: (value) => {
+                    if (!value.title || !value.descriptions) {
+                      return "Title and Descriptions are required!";
+                    }
+                  },
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    setData({
+                      ...data,
+                      attributes: {
+                        ...data.attributes,
+                        Title: result.value.title,
+                        Descriptions: result.value.descriptions,
+                      },
+                    });
+                  }
                 })
               }
-            />
+            >
+              Edit Title and Descriptions
+            </button>
             <br />
-            <button onClick={handleSave}>Save</button>
-
+            <button
+              onClick={() =>
+                Swal.fire({
+                  title: "Save Changes?",
+                  text: "Are you sure you want to save changes?",
+                  icon: "question",
+                  showCancelButton: true,
+                  confirmButtonText: "Save",
+                  cancelButtonText: "Cancel",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    handleSave();
+                  }
+                })
+              }
+            >
+              Save
+            </button>
             <button onClick={() => setIsEditing(false)}>Cancel</button>
           </div>
         ) : (
           <div>
             <img src={imageURL} width="200px" height="200px" />
-
             <div>
               <h4>Title : {data.attributes.Title}</h4>
               <p>Descriptions : {data.attributes.Descriptions}</p>

@@ -3,7 +3,6 @@ import jsCookie from "js-cookie";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import LoginPage from "@/pages/auth/login";
-
 export default function Navbar() {
   const router = useRouter();
   const { asPath } = useRouter();

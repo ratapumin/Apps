@@ -99,7 +99,7 @@ export default function LoginPage() {
       {isLoggedIn && localStorage.getItem("user") && (
         <>
           <button onClick={handleLogout}>Logout</button>
-          <p>eiei{JSON.parse(localStorage.getItem("user")).username}</p>
+          <p>{JSON.parse(localStorage.getItem("user")).username}</p>
         </>
       )}
       {!isLoggedIn && (
