@@ -234,22 +234,21 @@ export default function Home() {
                       className={Styles.solidImg}
                       src={`http://localhost:1337${item.attributes.Pic.data.attributes.url}`}
                     />
-                    <div className={Styles.h3}>{item.attributes.Title}</div>
+                    <p className={Styles.h3}>{item.attributes.Title}</p>
                   </div>
                 </div>
                 <div className={Styles.back}>
                   <div>
                     <h4 className={Styles.h4}>{item.attributes.Title}</h4>
-                    <div className={Styles.boxtext}>
+                    <p className={Styles.boxtext}>
                       {item.attributes.Descriptions}
-                    </div>
-                    <div
+                    </p>
+                    <p
                       className={Styles.button68}
                       onClick={() => handleClick(item.id)}
-                      onKeyPress={(event) => handleKeyDown(item.id, event)}
                     >
                       Click
-                    </div>
+                    </p>
                     <button
                       className={Styles.buttonDelete}
                       onClick={() => handleClickDelete(item.id)}
