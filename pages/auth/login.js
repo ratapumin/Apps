@@ -43,10 +43,8 @@ export default function LoginPage() {
       },
       preConfirm: () => {
         if (
-          document.getElementById("email").value == "" ||
-          document.getElementById("password").value == "" ||
-          document.getElementById("email").value == null ||
-          document.getElementById("password").value == null
+          !document.getElementById("email").value ||
+          !document.getElementById("password").value
         ) {
           Swal.showValidationMessage(`Unable to pass null`);
         }
@@ -56,20 +54,20 @@ export default function LoginPage() {
     password = Swal.getPopup().querySelector("#password").value;
 
     if (loginForm.isConfirmed) {
-      const res = await axios.post("http://localhost:1337/api/auth/local", {
-        identifier: email,
-        password: password,
-      });
+      try {
+        const res = await axios.post("http://localhost:1337/api/auth/local", {
+          identifier: email,
+          password: password,
+        });
 
-      if (res.status === 200) {
-        const { username, email } = res.data.user;
-        const token = res.data.jwt;
-        jsCookie.set("jwt", token);
-        localStorage.setItem(
-          "user",
-          JSON.stringify({ username, email, token })
-        );
-        if (loginForm.isConfirmed) {
+        if (res.status === 200) {
+          const { username, email } = res.data.user;
+          const token = res.data.jwt;
+          jsCookie.set("jwt", token);
+          localStorage.setItem(
+            "user",
+            JSON.stringify({ username, email, token })
+          );
           Swal.fire({
             title: "Login successful!",
             text: "Welcome " + username,
@@ -77,13 +75,26 @@ export default function LoginPage() {
             showConfirmButton: false,
             timer: 1200,
           });
+          setTimeout(() => {
+            window.location.reload();
+          }, 1200);
           setIsLoggedIn(true);
         }
-      } else {
+      } catch (error) {
+        Swal.fire({
+          title: "Login failed!",
+          text: "Invalid email or password",
+          icon: "error",
+          showConfirmButton: false,
+          timer: 1200,
+        });
         setIsLoggedIn(false);
+        setTimeout(() => {
+          email = "";
+          password = "";
+          handleLogin(props);
+        }, 1200);
       }
-    } else {
-      setIsLoggedIn(false);
     }
   };
 
@@ -91,7 +102,7 @@ export default function LoginPage() {
     jsCookie.remove("jwt");
     localStorage.removeItem("user");
     setIsLoggedIn(false);
-    window.location.reload("/");
+    window.location.href = "/";
   };
 
   return (
