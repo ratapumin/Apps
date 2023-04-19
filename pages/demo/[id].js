@@ -3,6 +3,7 @@ import jsCookie from "js-cookie";
 import axios from "axios";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
+import Styles from "../../styles/[id].module.css";
 
 export default function CallID() {
   const [data, setData] = useState({});
@@ -109,84 +110,109 @@ export default function CallID() {
   };
 
   return (
-    <>
-      <center>
-        {isEditing ? (
-          <div>
-            <img src={imageURL} width="200px" height="200px" />
-            <h4>Title : {data.attributes.Title}</h4>
-            <p>Descriptions : {data.attributes.Descriptions}</p>
-            <input type="file" onChange={handleImageChange} />
-            <br />
-            <button
-              onClick={() =>
-                Swal.fire({
-                  title: "Edit Title and Descriptions",
-                  html: `
-        <input id="title" type="text" class="swal2-input" value="${data.attributes.Title}">
-        <input id="descriptions" class="swal2-input" value="${data.attributes.Descriptions}">`,
-                  showCancelButton: true,
-                  confirmButtonText: "Save",
-                  cancelButtonText: "Cancel",
-                  preConfirm: () => {
-                    const title = Swal.getPopup().querySelector("#title").value;
-                    const descriptions =
-                      Swal.getPopup().querySelector("#descriptions").value;
-                    return { title, descriptions };
-                  },
-                  inputValidator: (value) => {
-                    if (!value.title || !value.descriptions) {
-                      return "Title and Descriptions are required!";
-                    }
-                  },
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    setData({
-                      ...data,
-                      attributes: {
-                        ...data.attributes,
-                        Title: result.value.title,
-                        Descriptions: result.value.descriptions,
-                      },
-                    });
-                  }
-                })
-              }
-            >
-              Edit Title and Descriptions
-            </button>
-            <br />
-            <button
-              onClick={() =>
-                Swal.fire({
-                  title: "Save Changes?",
-                  text: "Are you sure you want to save changes?",
-                  icon: "question",
-                  showCancelButton: true,
-                  confirmButtonText: "Save",
-                  cancelButtonText: "Cancel",
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    handleSave();
-                  }
-                })
-              }
-            >
-              Save
-            </button>
-            <button onClick={() => setIsEditing(false)}>Cancel</button>
-          </div>
-        ) : (
-          <div>
-            <img src={imageURL} width="200px" height="200px" />
+    <div className={Styles.bg}>
+      <>
+        <center>
+          <br />
+          {isEditing ? (
             <div>
+              <img
+                src={
+                  shouldUpdateImage ? URL.createObjectURL(imageFile) : imageURL
+                }
+                width="300px"
+                height="300px"
+              />
               <h4>Title : {data.attributes.Title}</h4>
               <p>Descriptions : {data.attributes.Descriptions}</p>
+              <input type="file" onChange={handleImageChange} />
+              <br />
+              <br />
+              <button
+                className={Styles.button2}
+                onClick={() =>
+                  Swal.fire({
+                    title: "Edit Title and Descriptions",
+                    html: `
+            <input id="title" type="text" class="swal2-input" value="${data.attributes.Title}"> 
+            <input id="descriptions" class="swal2-input" value="${data.attributes.Descriptions}">`,
+                    showCancelButton: true,
+                    confirmButtonText: "Save",
+                    cancelButtonText: "Cancel",
+                    preConfirm: () => {
+                      const title =
+                        Swal.getPopup().querySelector("#title").value;
+                      const descriptions =
+                        Swal.getPopup().querySelector("#descriptions").value;
+                      return { title, descriptions };
+                    },
+                    inputValidator: (value) => {
+                      if (!value.title || !value.descriptions) {
+                        return "Title and Descriptions are required!";
+                      }
+                    },
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      setData({
+                        ...data,
+                        attributes: {
+                          ...data.attributes,
+                          Title: result.value.title,
+                          Descriptions: result.value.descriptions,
+                        },
+                      });
+                    }
+                  })
+                }
+              >
+                Edit Title and Descriptions
+              </button>
+              <br />
+              <br />
+              <button
+                className={Styles.button3}
+                onClick={() =>
+                  Swal.fire({
+                    title: "Save Changes?",
+                    text: "Are you sure you want to save changes?",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Save",
+                    cancelButtonText: "Cancel",
+                  }).then((result) => {
+                    if (result.isConfirmed) {
+                      handleSave();
+                    }
+                  })
+                }
+              >
+                Save
+              </button>
+              &nbsp;
+              <button
+                className={Styles.button4}
+                onClick={() => setIsEditing(false)}
+              >
+                Close
+              </button>
             </div>
-            <button onClick={() => setIsEditing(true)}>Edit</button>
-          </div>
-        )}
-      </center>
-    </>
+          ) : (
+            <div>
+              <img src={imageURL} width="300px" height="300px" />
+              <div>
+                <h4>Title : {data.attributes.Title}</h4>
+                <p>Descriptions : {data.attributes.Descriptions}</p>
+              </div>
+              <button
+                className={Styles.button}
+                onClick={() => setIsEditing(true)}
+              >
+                Correct
+              </button>
+            </div>
+          )}
+        </center>
+      </>
+    </div>
   );
 }

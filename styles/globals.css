@@ -1,10 +1,10 @@
+/* default styles */
+
 body {
     margin: 0;
     padding: 0;
     font-family: 'Noto Sans Thai', sans-serif;
-
 }
-
 
 .topnav {
     overflow: hidden;
@@ -16,7 +16,7 @@ body {
     display: block;
     color: black;
     text-align: center;
-    padding: 14px 16px;
+    padding: 20px 16px;
     text-decoration: none;
     font-size: 17px;
 }
@@ -34,7 +34,6 @@ body {
 .topnav .login-container {
     justify-content: space-between;
     float: right;
-
 }
 
 .topnav p {
@@ -60,10 +59,43 @@ body {
 }
 
 .topnav .login-container button:hover {
-    background-color: green;
+    background-color: #2196F3;
 }
 
+.topnav .logo {
+    background: none;
+    border-radius: none;
+    padding: 0px 5px;
+}
+
+.topnav a:hover {
+    color: #03e9f4;
+}
+
+.active {
+    color: #03e9f4;
+}
+
+Image:hover {
+    list-style: none;
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+    background-color: #d3d3d3;
+    color: white;
+}
+
+/* media queries */
+
 @media screen and (max-width: 600px) {
+    /* styles for screens with a max width of 600px */
+
     .topnav .login-container {
         float: none;
     }
@@ -82,34 +114,20 @@ body {
     .topnav p {
         border: 1px solid #ccc;
     }
-}
 
-.topnav .logo {
-    background: none;
-    border-radius: none;
-    padding: 0px 5px;
+    /* additional styles for smaller screens */
 
-}
+    .topnav a {
+        padding: 10px;
+        font-size: 14px;
+    }
 
-.topnav a:hover {
-    color: #03e9f4;
-}
+    .topnav .login-container button {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
 
-.active {
-    color: #03e9f4;
-}
-
-Image:hover {
-    list-style: none;
-}
-
-
-
-footer {
-    text-align: right;
-    padding: 10px;
-    background-color: #d3d3d3;
-    color: white;
-
-
+    .topnav .logo {
+        padding: 0px 3px;
+    }
 }

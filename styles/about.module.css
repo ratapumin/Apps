@@ -200,3 +200,46 @@
     place-items: center;
 
 }
+
+/* Small screens */
+@media only screen and (max-width: 600px) {
+    .lcard {
+        margin-left: 10px;
+        margin-right: 10px;
+        width: auto;
+        min-width: 0;
+    }
+
+    .box1 {
+        width: 100%;
+        padding-left: 0;
+        padding-right: 10px;
+    }
+
+    .imgg {
+        position: static;
+        display: block;
+        margin: 0 auto;
+        margin-top: 20px;
+    }
+
+    .p {
+        font-size: 16px;
+    }
+}
+
+/* Medium screens */
+@media only screen and (min-width: 601px) and (max-width: 900px) {
+    .container {
+        padding-left: 40px;
+    }
+
+    .box1 {
+        width: 50%;
+    }
+
+    .lcard {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+}
