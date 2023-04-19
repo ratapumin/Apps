@@ -41,6 +41,11 @@ export default function Home() {
     });
   };
 
+  const handleKeyDown = (itemid, event) => {
+    if (event.keyCode === 13) event.preventDefault();
+    handleClick(itemid);
+  };
+  //Create
   const showInputDialog = async () => {
     let createData = {
       data: {
@@ -52,39 +57,36 @@ export default function Home() {
     formData.append("files", imageFile);
 
     const result = await Swal.fire({
-      title: "Enter Title and Description",
+      title: "Enter Title Descriptions and Image",
       html:
         "<form>" +
-        '<input  id="swal-input1"  class="swal2-input " placeholder="Title"  value="' +
+        '<input  id="Title"  class="swal2-input " placeholder="Title"  value="' +
         (data.attributes?.Title || "") +
-        '" required>' +
-        '<input id="swal-input2"  class="swal2-input " placeholder="Description" value="' +
+        '" >' +
+        '<input id="Descriptions"  class="swal2-input " placeholder="Description" value="' +
         (data.attributes?.Descriptions || "") +
-        '"required>' +
-        '<input type="file" id="swal-input3"  class="swal2-input" placeholder="Description" value="' +
+        '">' +
+        '<input type="file" id="Image"  className="swal2-input" placeholder="Description" value="' +
         (data.attributes?.Pic.data || "") +
-        '"required>' +
+        '">' +
         "</form>",
 
       showConfirmButton: true,
       showCancelButton: true,
 
       preConfirm: () => {
-        event.preventDefault();
         if (
-          document.getElementById("swal-input1", "swal-input2", "swal-input3")
-            .value == "" ||
-          document.getElementById("swal-input1", "swal-input2", "swal-input3")
-            .value == "" ||
-          document.getElementById("swal-input1", "swal-input2", "swal-input3")
-            .value == null
+          !document.getElementById("Title").value ||
+          !document.getElementById("Descriptions").value ||
+          !document.getElementById("Image").value
         ) {
           Swal.showValidationMessage(`Unable to pass null`);
         }
-        createData.data.Title = document.getElementById("swal-input1").value;
+
+        createData.data.Title = document.getElementById("Title").value;
         createData.data.Descriptions =
-          document.getElementById("swal-input2").value;
-        const fileInput = document.getElementById("swal-input3");
+          document.getElementById("Descriptions").value;
+        const fileInput = document.getElementById("Image");
         if (fileInput.files.length > 0) {
           formData.append("files", fileInput.files[0]);
 
@@ -95,6 +97,23 @@ export default function Home() {
           }
         }
         return { createData };
+      },
+      inputAttributes: {
+        autocapitalize: "off",
+        autocorrect: "off",
+      },
+      inputValidator: (value) => {
+        if (!value) {
+          return "Please enter a value";
+        }
+      },
+      didOpen: (el) => {
+        el.addEventListener("keydown", (e) => {
+          if (e.keyCode === 13) {
+            const submitButton = el.querySelector("button.swal2-confirm");
+            submitButton.click();
+          }
+        });
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -130,6 +149,9 @@ export default function Home() {
           }
         );
         console.log(createDataRecrod.data.data);
+        setTimeout(() => {
+          location.reload("/");
+        }, 1200);
       }
     });
   };
@@ -157,7 +179,8 @@ export default function Home() {
           title: "Deleted Successfully",
           text: "Deleted Successfully",
           icon: "success",
-          Button: false,
+          showConfirmButton: false,
+          timer: 1200,
         });
 
         const config = {
@@ -197,12 +220,11 @@ export default function Home() {
             onClick={() => {
               showInputDialog();
             }}
-            className={Styles.buttonCreate}
+            className={Styles.button26}
           >
             add Item
           </button>
           <h3 className={Styles.h1}>Application demo build under SaaS</h3>
-
           {Array.isArray(data) &&
             data.map((item) => (
               <div className={Styles.card} key={item.id}>
@@ -212,21 +234,22 @@ export default function Home() {
                       className={Styles.solidImg}
                       src={`http://localhost:1337${item.attributes.Pic.data.attributes.url}`}
                     />
-                    <p className={Styles.h3}>{item.attributes.Title}</p>
+                    <div className={Styles.h3}>{item.attributes.Title}</div>
                   </div>
                 </div>
                 <div className={Styles.back}>
                   <div>
                     <h4 className={Styles.h4}>{item.attributes.Title}</h4>
-                    <p className={Styles.boxtext}>
+                    <div className={Styles.boxtext}>
                       {item.attributes.Descriptions}
-                    </p>
-                    <p
-                      className={Styles.button}
+                    </div>
+                    <div
+                      className={Styles.button68}
                       onClick={() => handleClick(item.id)}
+                      onKeyPress={(event) => handleKeyDown(item.id, event)}
                     >
-                      click
-                    </p>
+                      Click
+                    </div>
                     <button
                       className={Styles.buttonDelete}
                       onClick={() => handleClickDelete(item.id)}
